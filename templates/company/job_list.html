@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}My Job Listings{% endblock %}
+{% block sidebar %}{% include "partials/company_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <h2 style="margin:0;">My Job Listings</h2>
+  <a class="btn" href="{% url 'companyapp:job_create' %}">➕ Post New Job Opening</a>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Job Title</th>
+        <th>Openings</th>
+        <th>Min CGPA</th>
+        <th>Required Skills</th>
+        <th>Attached Quiz</th>
+        <th>Applicants</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr>
+        <td><strong style="font-size:15px;color:#1e293b;">{{ job.title }}</strong></td>
+        <td>{{ job.openings }} position(s)</td>
+        <td>{{ job.min_cgpa|default:"None" }}</td>
+        <td>
+          {% for s in job.skill_names %}
+            <span class="chip" style="background:#e0e7ff;color:#3730a3;">{{ s|title }}</span>
+          {% empty %}
+            <span style="color:#94a3b8;">None</span>
+          {% endfor %}
+        </td>
+        <td>
+          {% if job.job_quiz %}
+            <span class="badge" style="background:#8b5cf6;">📝 {{ job.job_quiz.quiz_name }}</span>
+          {% else %}
+            <span style="color:#94a3b8;">No Quiz</span>
+          {% endif %}
+        </td>
+        <td>
+          <a class="btn btn-outline" style="padding:6px 14px;font-size:13px;" href="{% url 'companyapp:review_applicants' job.id %}">
+            Review Applicants 👥
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="text-align:center;color:#64748b;padding:24px;">
+          No jobs posted yet. <a class="plain-link" href="{% url 'companyapp:job_create' %}">Post your first job opening</a>.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

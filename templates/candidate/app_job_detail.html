@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block sidebar %}{% include "partials/candidate_sidebar.html" %}{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>{{ job.title }}</h2>
+  <p style="color:#6b7280;">{{ job.company.company_name }}</p>
+  <p class="match-score">{{ match_percent }}% match with your profile</p>
+
+  <h4>Description</h4>
+  <p>{{ job.description|default:"—" }}</p>
+  <h4>Roles & Responsibilities</h4>
+  <p>{{ job.roles_responsibilities|default:"—" }}</p>
+  <h4>Requirements</h4>
+  <p>Minimum CGPA: {{ job.min_cgpa }}</p>
+  <p>Education: {% for e in job.education_names %}<span class="chip">{{ e }}</span>{% endfor %}</p>
+  <p>Skills: {% for s in job.skill_names %}<span class="chip">{{ s }}</span>{% endfor %}</p>
+
+  {% if application %}
+    <p><strong>Your application status:</strong> <span class="badge badge-{{ application.status }}">{{ application.get_status_display }}</span></p>
+    {% if application.quiz_score is not None %}<p><strong>Quiz score:</strong> {{ application.quiz_score }}%</p>{% endif %}
+  {% else %}
+    <form method="post">{% csrf_token %}
+      {% if job.job_quiz %}
+        <p style="color:#d97706;">This job requires completing the "<strong>{{ job.job_quiz.quiz_name }}</strong>" quiz before applying.</p>
+        <button class="btn" type="submit">Start Quiz & Apply</button>
+      {% else %}
+        <button class="btn" type="submit">Apply Now</button>
+      {% endif %}
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

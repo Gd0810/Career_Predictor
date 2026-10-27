@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Company Dashboard{% endblock %}
+{% block sidebar %}{% include "partials/company_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <h2 style="margin:0;">Company Portal Dashboard</h2>
+  <span style="font-size:14px;color:#64748b;font-weight:600;">Welcome, <strong>{{ company.company_name }}</strong></span>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid grid-3" style="margin-bottom:24px;">
+  <div class="stat-box">
+    <div class="num">{{ job_count }}</div>
+    <div class="label">Total Jobs Posted</div>
+  </div>
+  <div class="stat-box">
+    <div class="num" style="color:#10b981;">{{ total_applications }}</div>
+    <div class="label">Total Candidates Applied</div>
+  </div>
+  <div class="stat-box">
+    <div class="num" style="color:#06b6d4;">{{ jobs|length }}</div>
+    <div class="label">Active Listings</div>
+  </div>
+</div>
+
+<!-- Quick Action Buttons -->
+<div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+  <a href="{% url 'companyapp:job_create' %}" class="btn" style="padding:10px 20px;">➕ Post New Job Opening</a>
+  <a href="{% url 'companyapp:quiz_create' %}" class="btn btn-outline" style="padding:10px 20px;">📝 Create New Job Quiz</a>
+</div>
+
+<!-- Recent Jobs Table -->
+<div class="card">
+  <h3>💼 Your Active Job Listings</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Job Title</th>
+        <th>Openings</th>
+        <th>Total Applicants</th>
+        <th>Attached Quiz</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr>
+        <td><strong>{{ job.title }}</strong></td>
+        <td>{{ job.openings }} position(s)</td>
+        <td><strong style="color:#6366f1;">{{ job.applications.count }} applicants</strong></td>
+        <td>
+          {% if job.job_quiz %}
+            <span class="badge" style="background:#8b5cf6;">📝 {{ job.job_quiz.quiz_name }}</span>
+          {% else %}
+            <span style="color:#94a3b8;">No Quiz Attached</span>
+          {% endif %}
+        </td>
+        <td>
+          <a class="btn btn-outline" style="padding:6px 14px;font-size:13px;" href="{% url 'companyapp:review_applicants' job.id %}">
+            Review Applicants 👥
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" style="text-align:center;color:#64748b;padding:24px;">
+          No jobs posted yet. <a class="plain-link" href="{% url 'companyapp:job_create' %}">Post a new job now</a>.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

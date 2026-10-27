@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Candidate Profile{% endblock %}
+{% block sidebar %}{% include "partials/candidate_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <h2 style="margin:0;">Candidate Profile & Settings</h2>
+</div>
+
+<!-- 1. Resume Upload Card -->
+<div class="card" style="background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);border-left:4px solid #6366f1;">
+  <h3>📄 Resume Upload & AI Auto-Fill</h3>
+  <p style="color:#64748b;font-size:13px;margin-bottom:16px;">
+    Upload your PDF or DOCX resume to automatically extract personal, academic, skill, and project details with high accuracy.
+  </p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="upload_resume">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <div style="flex:1;min-width:240px;">
+        {{ resume_form.resume }}
+      </div>
+      <button class="btn" type="submit" style="margin-bottom:16px;">🚀 Upload & Auto-Fill Resume</button>
+    </div>
+  </form>
+  {% if profile.resume %}
+    <div style="margin-top:8px;font-size:13px;color:#10b981;display:flex;align-items:center;gap:6px;">
+      <span>✓ Current resume uploaded:</span>
+      <a class="plain-link" href="{{ profile.resume.url }}" target="_blank">View File 📄</a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- 2. Personal & Academic Details Card -->
+<div class="card">
+  <h3>👤 Personal & Academic Details</h3>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save_profile">
+
+    <div class="grid grid-2">
+      <div>
+        <label>Profile Photo</label>
+        {{ form.photo }}
+        {% if profile.photo %}
+          <div style="margin-bottom:14px;">
+            <img src="{{ profile.photo.url }}" alt="Profile Photo" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #6366f1;">
+          </div>
+        {% endif %}
+      </div>
+      <div>
+        <label>Academic Degree</label>
+        {{ form.degree }}
+      </div>
+      <div>
+        <label>Target Role (e.g. python_developer, data_analyst)</label>
+        {{ form.role }}
+      </div>
+      <div>
+        <label>Academic Score (CGPA / 10.0)</label>
+        {{ form.cgpa }}
+      </div>
+      <div>
+        <label>Experience Type</label>
+        {{ form.experience_type }}
+      </div>
+      <div>
+        <label>Experience Duration (Years)</label>
+        {{ form.experience_years }}
+      </div>
+    </div>
+
+    <button class="btn" type="submit" style="margin-top:8px;">Save Profile Changes</button>
+  </form>
+</div>
+
+<!-- 3. Technical Skills Card -->
+<div class="card">
+  <h3>🛠 Technical Skills</h3>
+  <div style="margin-bottom:16px;">
+    {% for s in profile.skill_names %}
+      <span class="chip" style="background:#e0e7ff;color:#3730a3;font-weight:600;">{{ s|title }}</span>
+    {% empty %}
+      <p style="color:#94a3b8;font-size:13px;">No skills added yet - type below or upload a resume to auto-fill.</p>
+    {% endfor %}
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save_skills">
+    <label>Add or Edit Skills (comma separated, e.g. python, django, sql, react)</label>
+    {{ skills_form.skills }}
+    <button class="btn" type="submit">Update Skills</button>
+  </form>
+</div>
+
+<!-- 4. Projects Showcase Card -->
+<div class="card">
+  <h3>📁 Projects Showcase</h3>
+  <div style="margin-bottom:20px;">
+    {% for p in projects %}
+      <div style="border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:12px;background:#f8fafc;">
+        <strong style="color:#1e293b;font-size:15px;">{{ p.title }}</strong>
+        <p style="margin:6px 0 0 0;color:#64748b;font-size:13px;line-height:1.5;">{{ p.description|default:"No description provided." }}</p>
+      </div>
+    {% empty %}
+      <p style="color:#94a3b8;font-size:13px;">No projects added yet.</p>
+    {% endfor %}
+  </div>
+
+  <h4 style="margin-bottom:10px;color:#334155;">Add New Project</h4>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add_project">
+    <label>Project Title</label>
+    {{ project_form.title }}
+    <label>Project Description</label>
+    {{ project_form.description }}
+    <button class="btn" type="submit">Add Project</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Job Quizzes{% endblock %}
+{% block sidebar %}{% include "partials/company_sidebar.html" %}{% endblock %}
+{% block content %}
+<h2>Job Quizzes</h2>
+<a class="btn" href="{% url 'companyapp:quiz_create' %}">➕ Create Quiz</a>
+<div class="card" style="margin-top:18px;">
+  <table>
+    <tr><th>Name</th><th>Timing (min)</th><th>Questions</th><th>Attached Jobs</th></tr>
+    {% for quiz in quizzes %}
+    <tr>
+      <td>{{ quiz.quiz_name }}</td>
+      <td>{{ quiz.quiz_timing_minutes }}</td>
+      <td>{{ quiz.total_questions }}</td>
+      <td>{{ quiz.jobs.count }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No quizzes created yet.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

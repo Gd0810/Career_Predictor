@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Manage Companies{% endblock %}
+{% block sidebar %}{% include "partials/admin_sidebar.html" %}{% endblock %}
+{% block content %}
+<h2>Manage Companies</h2>
+<div class="card">
+  <table>
+    <tr><th>Company</th><th>Email</th><th>Jobs</th><th>Status</th><th>Actions</th></tr>
+    {% for c in companies %}
+    <tr>
+      <td>{{ c.company_name }}</td>
+      <td>{{ c.user.email }}</td>
+      <td>{{ c.jobs.count }}</td>
+      <td>{% if c.user.is_active %}<span class="badge badge-next_round">Active</span>{% else %}<span class="badge badge-rejected">Inactive</span>{% endif %}</td>
+      <td>
+        <a class="btn btn-secondary" href="{% url 'adminapp:toggle_company_active' c.id %}" style="padding:4px 10px;">Toggle</a>
+        <a class="btn btn-danger" href="{% url 'adminapp:delete_company' c.id %}" style="padding:4px 10px;" onclick="return confirm('Delete this company?');">Delete</a>
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="5">No companies registered yet.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

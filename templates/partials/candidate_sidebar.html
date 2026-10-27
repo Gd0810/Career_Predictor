@@ -1,0 +1,9 @@
+<div class="sidebar">
+  <a href="{% url 'candidateapp:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
+  <a href="{% url 'candidateapp:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">👤 Candidate Profile</a>
+  <a href="{% url 'candidateapp:resume_analyzer' %}" class="{% if request.resolver_match.url_name == 'resume_analyzer' %}active{% endif %}">📄 Resume Analyzer</a>
+  <a href="{% url 'candidateapp:roadmap' %}" class="{% if request.resolver_match.url_name == 'roadmap' %}active{% endif %}">🧭 Career Roadmap</a>
+  <a href="{% url 'candidateapp:app_jobs_list' %}" class="{% if request.resolver_match.url_name == 'app_jobs_list' or request.resolver_match.url_name == 'app_job_detail' %}active{% endif %}">💼 Job Openings</a>
+  <a href="{% url 'candidateapp:external_jobs' %}" class="{% if request.resolver_match.url_name == 'external_jobs' %}active{% endif %}">🌐 Jobs & Learning Hub</a>
+  <a href="{% url 'candidateapp:salary_analysis' %}" class="{% if request.resolver_match.url_name == 'salary_analysis' %}active{% endif %}">💰 Salary & Placement Analysis</a>
+</div>

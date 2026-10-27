@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Career Roadmap{% endblock %}
+{% block sidebar %}{% include "partials/candidate_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <h2 style="margin:0;">Career Roadmap & Recommendations</h2>
+</div>
+
+<!-- 1. Career Recommendation Card -->
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+    <h3 style="margin:0;">1. AI Career Recommendations</h3>
+    <form method="post" style="margin:0;">{% csrf_token %}
+      <input type="hidden" name="action" value="get_recommendations">
+      <button class="btn" type="submit">✨ Get Top 5 Career Suggestions</button>
+    </form>
+  </div>
+
+  {% if recommendations %}
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Career Role</th>
+        <th>Profile Skill Match</th>
+        <th>Future Market Trend</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rec in recommendations %}
+      <tr>
+        <td><strong>#{{ forloop.counter }}</strong></td>
+        <td><strong style="font-size:15px;color:#1e293b;">{{ rec.career_name }}</strong></td>
+        <td><strong style="color:#6366f1;font-size:16px;">{{ rec.match_percent }}%</strong></td>
+        <td><span class="badge badge-growth">📈 {{ rec.trend }}</span></td>
+        <td>
+          <form method="post" style="margin:0;">{% csrf_token %}
+            <input type="hidden" name="action" value="generate_roadmap">
+            <input type="hidden" name="target_career" value="{{ rec.career_name }}">
+            <button class="btn btn-outline" type="submit" style="padding:6px 14px;font-size:13px;">
+              Generate Roadmap 🗺️
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p style="color:#64748b;font-size:14px;">Click <strong>"Get Top 5 Career Suggestions"</strong> above to calculate career role match percentages based on your profile.</p>
+  {% endif %}
+</div>
+
+<!-- 2. Skill Roadmap Generator Card -->
+<div class="card">
+  <h3>2. Step-by-Step Skill Roadmap</h3>
+  {% if roadmap_steps %}
+    {% regroup roadmap_steps by target_career as career_groups %}
+    {% for group in career_groups %}
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 16px;border-radius:10px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+      <h4 style="margin:0;font-size:16px;color:#4f46e5;">🎯 Target Career: <strong>{{ group.grouper }}</strong></h4>
+      <span class="badge" style="background:#4f46e5;">Active Pathway</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:60px;">Seq</th>
+          <th>Skill Milestone</th>
+          <th>Learning Stage</th>
+          <th style="width:140px;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for step in group.list %}
+        <tr>
+          <td><strong>#{{ step.sequence_no }}</strong></td>
+          <td><strong style="font-size:14px;color:#1e293b;">{{ step.skill_name }}</strong></td>
+          <td>
+            <span class="badge" style="background:{% if step.stage == 'job_ready' %}#10b981{% elif step.stage == 'project' %}#8b5cf6{% elif step.stage == 'advanced' %}#6366f1{% elif step.stage == 'intermediate' %}#3b82f6{% else %}#64748b{% endif %}; font-size:11px;">
+              {{ step.get_stage_display }}
+            </span>
+          </td>
+          <td>
+            <form method="post" style="margin:0;">{% csrf_token %}
+              <input type="hidden" name="action" value="toggle_step">
+              <input type="hidden" name="step_id" value="{{ step.id }}">
+              <button type="submit" class="btn {% if step.is_completed %}btn-secondary{% endif %}" style="padding:5px 12px;font-size:12px;width:110px;">
+                {% if step.is_completed %}✓ Done{% else %}Mark Done{% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %}
+  {% else %}
+    <p style="color:#64748b;font-size:14px;">Get career recommendations above, then click <strong>"Generate Roadmap"</strong> for your target career role.</p>
+  {% endif %}
+</div>
+{% endblock %}

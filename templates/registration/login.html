@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Login - NextGen Career Predictor{% endblock %}
+{% block content %}
+<div class="card" style="max-width:440px;margin:40px auto;padding:32px;">
+  <div style="text-align:center;margin-bottom:24px;">
+    <div style="font-size:32px;margin-bottom:6px;">🚀</div>
+    <h3 style="font-size:22px;margin:0;">Welcome Back</h3>
+    <p style="color:#64748b;font-size:14px;margin-top:4px;">Log in to access your dashboard</p>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <label>Email Address</label>
+    {{ form.mail }}
+    <label>Password</label>
+    {{ form.password }}
+    {% if form.errors %}
+      <div style="color:#dc2626;background:#fee2e2;border:1px solid #fecaca;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+    <button class="btn" type="submit" style="width:100%;padding:12px 0;font-size:15px;margin-top:6px;">Log In</button>
+  </form>
+
+  <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:14px;">
+    <span>New here? </span><a class="plain-link" href="{% url 'accounts:register' %}">Create an account</a>
+  </div>
+  <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px;">
+    Admin? Log in with your Django superuser credentials to access the Admin Panel.
+  </p>
+</div>
+{% endblock %}

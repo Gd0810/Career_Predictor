@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Create Job Quiz{% endblock %}
+{% block sidebar %}{% include "partials/company_sidebar.html" %}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:700px;">
+  <h3>Create a Job Quiz</h3>
+  <p style="color:#6b7280;font-size:13px;">
+    Candidates who apply to a job with this quiz attached must complete it first.
+    The test browser window blocks tab-switching / other apps - 3 violations auto-submits the quiz.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <label>Quiz Name *</label>
+    {{ form.quiz_name }}
+    <label>Quiz Timing (minutes) *</label>
+    {{ form.quiz_timing_minutes }}
+    <label>Quiz Questions (JSON format) *</label>
+    {{ form.questions_text }}
+    {% if form.errors %}<p style="color:#dc2626;">{{ form.errors }}</p>{% endif %}
+    <button class="btn" type="submit">Create Quiz</button>
+  </form>
+</div>
+{% endblock %}

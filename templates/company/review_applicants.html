@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Review Applicants{% endblock %}
+{% block sidebar %}{% include "partials/company_sidebar.html" %}{% endblock %}
+{% block content %}
+<h2>Applicants for: {{ job.title }}</h2>
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Candidate</th>
+        <th>Match %</th>
+        <th>Quiz Score</th>
+        <th>Tab Switch / Anti-Cheat Status</th>
+        <th>Status</th>
+        <th>Update</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in applications %}
+      <tr>
+        <td>
+          <strong>{{ app.candidate.user.email }}</strong><br>
+          <small style="color:#6b7280;">{{ app.candidate.role|default:"Candidate" }}</small>
+        </td>
+        <td><strong>{{ app.match_percent }}%</strong></td>
+        <td>
+          {% if app.quiz_score is not None %}
+            <strong>{{ app.quiz_score }}%</strong> ({{ app.quiz_total }} Qs)
+          {% else %}
+            <span style="color:#6b7280;">No quiz</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if app.quiz_attempt and app.quiz_attempt.submitted_at %}
+            {% if app.quiz_attempt.violation_count == 0 %}
+              <span class="badge" style="background:#10b981;color:#fff;">✓ 0 / {{ max_violations }} Tab Switches (Clean)</span>
+            {% elif app.quiz_attempt.violation_count < max_violations and not app.quiz_attempt.auto_submitted %}
+              <span class="badge" style="background:#f59e0b;color:#fff;">⚠️ {{ app.quiz_attempt.violation_count }} / {{ max_violations }} Tab Switch Attempts</span>
+            {% else %}
+              <span class="badge" style="background:#ef4444;color:#fff;">🚨 {{ app.quiz_attempt.violation_count }} / {{ max_violations }} Tab Switches (Auto-Submitted)</span>
+            {% endif %}
+          {% elif job.job_quiz %}
+            <span style="color:#6b7280;">Quiz Pending</span>
+          {% else %}
+            <span style="color:#9ca3af;">N/A (No Quiz)</span>
+          {% endif %}
+        </td>
+        <td><span class="badge badge-{{ app.status }}">{{ app.get_status_display }}</span></td>
+        <td>
+          <form method="post" style="display:flex;gap:6px;">
+            {% csrf_token %}
+            <input type="hidden" name="application_id" value="{{ app.id }}">
+            <select name="status">
+              {% for value, label in app.STATUS_CHOICES %}
+                <option value="{{ value }}" {% if app.status == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn" type="submit">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">No applicants yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

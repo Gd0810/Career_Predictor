@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Job Openings{% endblock %}
+{% block sidebar %}{% include "partials/candidate_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <h2 style="margin:0;">Internal Job Postings</h2>
+  <span style="font-size:14px;color:#64748b;font-weight:600;">Explore verified job openings and apply with 1-click</span>
+</div>
+
+<div class="grid grid-2">
+  {% for item in job_cards %}
+  <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
+        <h3 style="margin:0;font-size:18px;color:#1e293b;">{{ item.job.title }}</h3>
+        <span class="match-score" style="font-size:22px;">{{ item.match_percent }}%</span>
+      </div>
+      <p style="color:#64748b;font-size:13px;margin-bottom:12px;">
+        🏢 <strong>{{ item.job.company.company_name }}</strong> · 👥 {{ item.job.openings }} opening(s) · 💰 {{ item.job.salary|default:"Salary negotiable" }}
+      </p>
+      
+      <div style="margin-bottom:16px;">
+        {% for s in item.job.skill_names %}
+          <span class="chip" style="background:#e0e7ff;color:#3730a3;">{{ s|title }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div>
+      <a class="btn" style="width:100%;text-align:center;justify-content:center;" href="{% url 'candidateapp:app_job_detail' item.job.id %}">
+        {% if item.already_applied %}View Application Status 📄{% else %}View Details & Apply 🚀{% endif %}
+      </a>
+    </div>
+  </div>
+  {% empty %}
+  <div class="card" style="grid-column:1/-1;text-align:center;padding:32px;color:#64748b;">
+    No jobs posted yet. Check back soon!
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

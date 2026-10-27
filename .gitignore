@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+media/resumes/*
+media/photos/*
+!media/resumes/.gitkeep
+!media/photos/.gitkeep
+candidateapp/ml_artifacts/
+staticfiles/
+.venv/

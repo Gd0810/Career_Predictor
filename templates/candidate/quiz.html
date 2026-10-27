@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ quiz.quiz_name }} - Quiz{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h2>{{ quiz.quiz_name }}</h2>
+    <div>Time left: <span id="timer" class="timer">--:--</span></div>
+  </div>
+  <p style="color:#6b7280;">Job: {{ job.title }} · {{ quiz.total_questions }} question(s)</p>
+  <div class="quiz-warning">
+    ⚠️ Do not switch tabs, minimize this window, or open other apps during the test.
+    Violations so far: <span id="violation-count">0</span> / {{ max_violations }}.
+    After {{ max_violations }} violations the quiz auto-submits.
+  </div>
+</div>
+
+<form id="quiz-form" method="post" action="{% url 'candidateapp:submit_quiz' application.id %}">
+  {% csrf_token %}
+  <input type="hidden" name="answers_json" id="answers_json">
+  <input type="hidden" name="violation_count" id="violation_count_input" value="0">
+  <input type="hidden" name="auto_submitted" id="auto_submitted_input" value="false">
+
+  <div id="questions-container"></div>
+
+  <div class="card">
+    <button class="btn" type="submit" id="submit-btn">Submit Quiz</button>
+  </div>
+</form>
+
+<script src="{% static 'js/quiz_anticheat.js' %}"></script>
+<script>
+const questions = {{ questions_json|safe }};
+const container = document.getElementById("questions-container");
+const answers = {};
+
+questions.forEach((q, idx) => {
+  const div = document.createElement("div");
+  div.className = "card";
+  let optionsHtml = "";
+  ["option_1", "option_2", "option_3", "option_4"].forEach(optKey => {
+    optionsHtml += `
+      <label style="display:block;font-weight:400;margin:6px 0;">
+        <input type="radio" name="q_${idx}" value="${optKey}"> ${q[optKey]}
+      </label>`;
+  });
+  div.innerHTML = `<h4>Q${idx + 1}. ${q.question}</h4>${optionsHtml}`;
+  container.appendChild(div);
+});
+
+container.addEventListener("change", (e) => {
+  if (e.target.name && e.target.name.startsWith("q_")) {
+    const idx = e.target.name.split("_")[1];
+    answers[idx] = e.target.value;
+  }
+});
+
+let isSubmitting = false;
+
+function doSubmit(autoSubmitted) {
+  if (isSubmitting) return;
+  isSubmitting = true;
+
+  if (window.anticheat && typeof window.anticheat.setSubmitted === "function") {
+    window.anticheat.setSubmitted();
+  }
+  window.onbeforeunload = null;
+
+  document.getElementById("answers_json").value = JSON.stringify(answers);
+  document.getElementById("violation_count_input").value = anticheat.getViolations();
+  document.getElementById("auto_submitted_input").value = autoSubmitted ? "true" : "false";
+  document.getElementById("quiz-form").submit();
+}
+
+window.anticheat = initQuizAntiCheat({
+  maxViolations: {{ max_violations }},
+  onAutoSubmit: function () { doSubmit(true); },
+});
+
+document.getElementById("quiz-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  doSubmit(false);
+});
+
+const totalSeconds = {{ quiz.quiz_timing_minutes }} * 60;
+startQuizTimer(totalSeconds, document.getElementById("timer"), function () {
+  alert("Time is up! Submitting your quiz.");
+  doSubmit(false);
+});
+
+window.onbeforeunload = function () {
+  if (!isSubmitting) return "Leaving now may forfeit your quiz attempt.";
+};
+</script>
+{% endblock %}

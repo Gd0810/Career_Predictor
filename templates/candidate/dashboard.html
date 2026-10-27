@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Candidate Dashboard{% endblock %}
+{% block sidebar %}{% include "partials/candidate_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <h2 style="margin:0;">Candidate Dashboard</h2>
+  <span style="font-size:14px;color:#64748b;font-weight:600;">Welcome back, <strong>{{ user.first_name|default:user.email }}</strong>!</span>
+</div>
+
+<!-- Stat Cards Grid -->
+<div class="grid grid-3" style="margin-bottom:24px;">
+  <div class="stat-box">
+    <div class="num">{{ skills|length }}</div>
+    <div class="label">Skills Added</div>
+  </div>
+  <div class="stat-box">
+    <div class="num">{{ applications|length }}</div>
+    <div class="label">Jobs Applied</div>
+  </div>
+  <div class="stat-box">
+    <div class="num" style="color:{% if resume_uploaded %}#10b981{% else %}#f59e0b{% endif %};">
+      {% if resume_uploaded %}✓ Active{% else %}⚠️ Pending{% endif %}
+    </div>
+    <div class="label">Resume Status</div>
+  </div>
+</div>
+
+{% if not resume_uploaded %}
+<div class="card" style="background:#fff7ed;border-color:#fed7aa;display:flex;align-items:center;gap:12px;">
+  <span style="font-size:24px;">💡</span>
+  <div>
+    <strong>Action Required:</strong> Upload your resume in your <a class="plain-link" href="{% url 'candidateapp:profile' %}">Candidate Profile</a> to enable AI auto-fill and unlock full feature analysis.
+  </div>
+</div>
+{% endif %}
+
+<!-- Quick Feature Launchpad -->
+<div class="grid grid-4" style="margin-bottom:24px;">
+  <a href="{% url 'candidateapp:resume_analyzer' %}" class="card" style="text-decoration:none;text-align:center;padding:18px 12px;margin:0;">
+    <div style="font-size:28px;margin-bottom:6px;">📄</div>
+    <strong style="color:#1e293b;font-size:14px;">Resume Analyzer</strong>
+    <div style="font-size:12px;color:#64748b;margin-top:2px;">Quality & ATS Score</div>
+  </a>
+  <a href="{% url 'candidateapp:roadmap' %}" class="card" style="text-decoration:none;text-align:center;padding:18px 12px;margin:0;">
+    <div style="font-size:28px;margin-bottom:6px;">🧭</div>
+    <strong style="color:#1e293b;font-size:14px;">Skill Roadmap</strong>
+    <div style="font-size:12px;color:#64748b;margin-top:2px;">Step-by-Step Learning</div>
+  </a>
+  <a href="{% url 'candidateapp:salary_analysis' %}" class="card" style="text-decoration:none;text-align:center;padding:18px 12px;margin:0;">
+    <div style="font-size:28px;margin-bottom:6px;">💰</div>
+    <strong style="color:#1e293b;font-size:14px;">Salary Analysis</strong>
+    <div style="font-size:12px;color:#64748b;margin-top:2px;">Salary & Placement ML</div>
+  </a>
+  <a href="{% url 'candidateapp:app_jobs_list' %}" class="card" style="text-decoration:none;text-align:center;padding:18px 12px;margin:0;">
+    <div style="font-size:28px;margin-bottom:6px;">💼</div>
+    <strong style="color:#1e293b;font-size:14px;">Job Openings</strong>
+    <div style="font-size:12px;color:#64748b;margin-top:2px;">Apply & Take Quizzes</div>
+  </a>
+</div>
+
+<!-- Applications Table -->
+<div class="card">
+  <h3>📋 Your Job Applications</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Job Title</th>
+        <th>Company</th>
+        <th>Skill Match</th>
+        <th>Status</th>
+        <th>Quiz Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in applications %}
+      <tr>
+        <td><strong>{{ app.job.title }}</strong></td>
+        <td>{{ app.job.company.company_name }}</td>
+        <td><strong style="color:#6366f1;">{{ app.match_percent }}%</strong></td>
+        <td><span class="badge badge-{{ app.status }}">{{ app.get_status_display }}</span></td>
+        <td>
+          {% if app.quiz_score is not None %}
+            <strong>{{ app.quiz_score }}%</strong>
+          {% else %}
+            <span style="color:#94a3b8;">No Quiz</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" style="text-align:center;color:#64748b;padding:24px;">
+          No applications yet. Browse <a class="plain-link" href="{% url 'candidateapp:app_jobs_list' %}">Job Openings</a> to apply!
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

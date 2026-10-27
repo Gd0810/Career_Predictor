@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Resume Analyzer{% endblock %}
+{% block sidebar %}{% include "partials/candidate_sidebar.html" %}{% endblock %}
+{% block content %}
+<h2>Resume Analyzer</h2>
+
+<div class="card">
+  <form method="post">{% csrf_token %}
+    <button class="btn" type="submit">Run AI Resume Analysis</button>
+  </form>
+</div>
+
+{% if analysis %}
+<div class="grid grid-2">
+  <div class="card">
+    <h3>1. Data Analyze Engine</h3>
+
+    <!-- Scores Grid -->
+    <div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:140px;background:#f3f4f6;padding:12px 16px;border-radius:8px;border-left:4px solid #6366f1;">
+        <span style="font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">Resume Quality Score</span>
+        <div style="font-size:24px;font-weight:700;color:#1f2937;margin-top:4px;">{{ analysis.quality_score }}%</div>
+      </div>
+      <div style="flex:1;min-width:140px;background:#f3f4f6;padding:12px 16px;border-radius:8px;border-left:4px solid #10b981;">
+        <span style="font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase;">ATS Resume Score</span>
+        <div style="font-size:24px;font-weight:700;color:#1f2937;margin-top:4px;">{{ analysis.ats_score }}%</div>
+      </div>
+    </div>
+
+    <!-- Key Points Section -->
+    <div style="margin-bottom:18px;">
+      <h4 style="margin-bottom:8px;color:#374151;display:flex;align-items:center;gap:6px;">
+        📌 <strong>Key Points:</strong>
+      </h4>
+      <ul style="padding-left:20px;margin:0;line-height:1.6;">
+        {% for kp in analysis.key_points %}
+        <li style="margin-bottom:6px;">{{ kp }}</li>
+        {% empty %}
+        <li style="color:#6b7280;">No key points identified.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Strengths Section -->
+    <div style="margin-bottom:18px;">
+      <h4 style="margin-bottom:8px;color:#059669;display:flex;align-items:center;gap:6px;">
+        💪 <strong>Strengths:</strong>
+      </h4>
+      <ul style="padding-left:20px;margin:0;line-height:1.6;">
+        {% for s in analysis.strengths %}
+        <li style="margin-bottom:6px;">{{ s }}</li>
+        {% empty %}
+        <li style="color:#6b7280;">No specific strengths highlighted.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Improvements Section -->
+    <div style="margin-bottom:10px;">
+      <h4 style="margin-bottom:8px;color:#d97706;display:flex;align-items:center;gap:6px;">
+        ⚡ <strong>Improvements:</strong>
+      </h4>
+      <ul style="padding-left:20px;margin:0;line-height:1.6;">
+        {% for i in analysis.improvements %}
+        <li style="margin-bottom:6px;">{{ i }}</li>
+        {% empty %}
+        <li style="color:#6b7280;">No improvements required.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>2. Progress Tracker</h3>
+    {% for log in progress_logs %}
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;">
+        <span>{{ log.skill_name }}</span><span>{{ log.progress_percent }}%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:{{ log.progress_percent }}%;"></div></div>
+    </div>
+    {% empty %}
+    <p style="color:#6b7280;">No progress tracked yet - add skills to your profile.</p>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="card"><p style="color:#6b7280;">No analysis yet. Upload a resume in your Profile, then click "Run AI Resume Analysis" above.</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Post a Job{% endblock %}
+{% block sidebar %}{% include "partials/company_sidebar.html" %}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:640px;">
+  <h3>Post a New Job</h3>
+  <form method="post">
+    {% csrf_token %}
+    <label>Job Title *</label>
+    {{ form.title }}
+    <label>Description</label>
+    {{ form.description }}
+    <label>Roles & Responsibilities</label>
+    {{ form.roles_responsibilities }}
+    <label>Openings *</label>
+    {{ form.openings }}
+    <label>Salary (e.g. 5-8 LPA)</label>
+    {{ form.salary }}
+    <label>Minimum CGPA *</label>
+    {{ form.min_cgpa }}
+    <label>Education Required (comma separated) *</label>
+    {{ form.educations }}
+    <label>Skills Required (comma separated) *</label>
+    {{ form.skills }}
+    <label>Attach Job Quiz (optional)</label>
+    {{ form.job_quiz }}
+    {% if form.errors %}<p style="color:#dc2626;">Please fix the errors above.</p>{% endif %}
+    <button class="btn" type="submit">Post Job</button>
+  </form>
+</div>
+{% endblock %}

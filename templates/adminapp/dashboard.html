@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block sidebar %}{% include "partials/admin_sidebar.html" %}{% endblock %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<div class="grid grid-3">
+  <div class="card stat-box"><div class="num">{{ company_count }}</div><div class="label">Companies</div></div>
+  <div class="card stat-box"><div class="num">{{ candidate_count }}</div><div class="label">Candidates</div></div>
+  <div class="card stat-box"><div class="num">{{ job_count }}</div><div class="label">Jobs Posted</div></div>
+  <div class="card stat-box"><div class="num">{{ application_count }}</div><div class="label">Applications</div></div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Jobs per Company</h3>
+    <table>
+      <tr><th>Company</th><th>Jobs</th></tr>
+      {% for row in jobs_per_company %}
+      <tr><td>{{ row.company__company_name }}</td><td>{{ row.total }}</td></tr>
+      {% empty %}<tr><td colspan="2">No data yet.</td></tr>{% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h3>Applications by Status</h3>
+    <table>
+      <tr><th>Status</th><th>Count</th></tr>
+      {% for row in applications_by_status %}
+      <tr><td>{{ row.status }}</td><td>{{ row.total }}</td></tr>
+      {% empty %}<tr><td colspan="2">No data yet.</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Recently Registered Users</h3>
+  <table>
+    <tr><th>Email</th><th>Role</th><th>Joined</th></tr>
+    {% for u in recent_users %}
+    <tr><td>{{ u.email }}</td><td>{{ u.role }}</td><td>{{ u.date_joined|date:"d M Y" }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

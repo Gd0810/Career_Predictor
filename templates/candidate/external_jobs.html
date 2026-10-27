@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Jobs & Learning Hub{% endblock %}
+{% block sidebar %}{% include "partials/candidate_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<h2>Jobs & Learning (External Sites)</h2>
+
+<!-- Search & Filter Controls -->
+<div class="card" style="background:#f9fafb;border:1px solid #e5e7eb;margin-bottom:20px;">
+  <form method="get" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+    <div style="flex:2;min-width:200px;">
+      <label style="font-weight:600;font-size:13px;color:#374151;display:block;margin-bottom:4px;">Target Role / Keyword</label>
+      <input type="text" name="search_role" value="{{ search_role }}" placeholder="e.g. Python Developer, Data Analyst" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;">
+    </div>
+    <div style="flex:1;min-width:140px;">
+      <label style="font-weight:600;font-size:13px;color:#374151;display:block;margin-bottom:4px;">Location</label>
+      <input type="text" name="location" value="{{ location }}" placeholder="e.g. India, Remote" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;">
+    </div>
+    <div>
+      <button class="btn" type="submit" style="padding:9px 18px;">Search Platform Links</button>
+    </div>
+  </form>
+
+  <div style="margin-top:12px;font-size:13px;color:#6b7280;">
+    <span>Quick Role Chips:</span>
+    <a href="?search_role=Python+Developer&location={{ location }}" class="chip" style="text-decoration:none;cursor:pointer;">Python Developer</a>
+    <a href="?search_role=Web+Developer&location={{ location }}" class="chip" style="text-decoration:none;cursor:pointer;">Web Developer</a>
+    <a href="?search_role=Data+Analyst&location={{ location }}" class="chip" style="text-decoration:none;cursor:pointer;">Data Analyst</a>
+    <a href="?search_role=Machine+Learning+Engineer&location={{ location }}" class="chip" style="text-decoration:none;cursor:pointer;">ML Engineer</a>
+  </div>
+</div>
+
+
+<!-- 1. Top Job Platforms Section -->
+<div class="card" style="margin-bottom:24px;">
+  <h3 style="margin-bottom:6px;">🌐 Top External Job Boards</h3>
+  <p style="color:#6b7280;font-size:13px;margin-bottom:16px;">
+    Pre-filled direct job search links for <strong>"{{ search_role }}"</strong> in <strong>{{ location }}</strong> across top hiring portals:
+  </p>
+
+  <div class="grid grid-3" style="gap:16px;">
+    {% for link in job_links %}
+    <div style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#fff;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h4 style="margin:0;font-size:16px;color:#1f2937;">{{ link.icon }} {{ link.site }}</h4>
+          <span class="badge" style="background:{{ link.color }};color:#fff;font-size:11px;padding:3px 8px;">{{ link.badge }}</span>
+        </div>
+        <p style="font-size:13px;color:#4b5563;margin-bottom:14px;line-height:1.4;">{{ link.description }}</p>
+      </div>
+      <a href="{{ link.url }}" target="_blank" rel="noopener" class="btn btn-outline" style="text-align:center;text-decoration:none;width:100%;font-size:13px;padding:8px 0;display:block;">
+        Explore {{ link.site }} Jobs ↗
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+
+<!-- 2. Personalized Learning Hub Section -->
+<div class="card">
+  <h3 style="margin-bottom:6px;">🎓 Personalized Learning & Interview Prep Hub</h3>
+  <p style="color:#6b7280;font-size:13px;margin-bottom:16px;">
+    Curated learning pathways, YouTube full courses, and coding practice platforms tailored to your skills:
+  </p>
+
+  <!-- Skill Badges -->
+  <div style="margin-bottom:16px;">
+    <span style="font-size:13px;font-weight:600;color:#374151;">Target Skills: </span>
+    {% for s in skills_to_learn %}
+      <span class="chip" style="background:#e0e7ff;color:#3730a3;font-weight:600;">{{ s|title }}</span>
+    {% endfor %}
+  </div>
+
+  <div class="grid grid-2" style="gap:20px;">
+
+    <!-- Free Resources Card -->
+    <div style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#f9fafb;">
+      <h4 style="color:#059669;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+        ▶ <strong>Free Learning & Video Tutorials</strong>
+      </h4>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for course in free_courses %}
+        <div style="background:#fff;padding:10px 14px;border-radius:8px;border:1px solid #e5e7eb;">
+          <strong style="color:#1f2937;font-size:14px;">{{ course.skill }}</strong>
+          <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;font-size:12px;">
+            <a href="{{ course.youtube_url }}" target="_blank" rel="noopener" style="color:#dc2626;font-weight:600;text-decoration:none;">▶ YouTube Course</a>
+            <a href="{{ course.freecodecamp_url }}" target="_blank" rel="noopener" style="color:#0d9488;font-weight:600;text-decoration:none;">💻 FreeCodeCamp</a>
+            <a href="{{ course.coursera_url }}" target="_blank" rel="noopener" style="color:#2563eb;font-weight:600;text-decoration:none;">🎓 Coursera Free Audit</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Premium & Practice Card -->
+    <div style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;background:#f9fafb;">
+      <h4 style="color:#7c3aed;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+        🏆 <strong>Certifications & Practice Platforms</strong>
+      </h4>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for course in paid_courses %}
+        <div style="background:#fff;padding:10px 14px;border-radius:8px;border:1px solid #e5e7eb;">
+          <strong style="color:#1f2937;font-size:14px;">{{ course.skill }}</strong>
+          <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;font-size:12px;">
+            <a href="{{ course.udemy_url }}" target="_blank" rel="noopener" style="color:#a855f7;font-weight:600;text-decoration:none;">🎓 Udemy Masterclasses</a>
+            <a href="{{ course.edx_url }}" target="_blank" rel="noopener" style="color:#0284c7;font-weight:600;text-decoration:none;">🏛 edX Certification</a>
+            <a href="{{ course.hackerrank_url }}" target="_blank" rel="noopener" style="color:#16a34a;font-weight:600;text-decoration:none;">⚡ HackerRank Practice</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

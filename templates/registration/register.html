@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Register - NextGen Career Predictor{% endblock %}
+{% block content %}
+<div class="card" style="max-width:520px;margin:30px auto;padding:32px;">
+  <div style="text-align:center;margin-bottom:24px;">
+    <div style="font-size:32px;margin-bottom:6px;">✨</div>
+    <h3 style="font-size:22px;margin:0;">Create an Account</h3>
+    <p style="color:#64748b;font-size:14px;margin-top:4px;">Join NextGen Career Predictor</p>
+  </div>
+
+  <div class="role-toggle">
+    <button type="button" class="tab-toggle {% if active_tab == 'student' %}active{% endif %}" data-tab="student">🎓 Candidate Account</button>
+    <button type="button" class="tab-toggle {% if active_tab == 'company' %}active{% endif %}" data-tab="company">🏢 Company Account</button>
+  </div>
+
+  <form method="post" id="student-form" style="{% if active_tab != 'student' %}display:none;{% endif %}">
+    {% csrf_token %}
+    <input type="hidden" name="role_tab" value="student">
+    <label>Candidate Full Name</label>
+    {{ student_form.student_name }}
+    <label>Email Address</label>
+    {{ student_form.student_mail }}
+    <label>Password</label>
+    {{ student_form.password }}
+    <label>Confirm Password</label>
+    {{ student_form.confirm_password }}
+    {% if student_form.errors %}
+      <div style="color:#dc2626;background:#fee2e2;border:1px solid #fecaca;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;">
+        {{ student_form.non_field_errors }}
+      </div>
+    {% endif %}
+    <button class="btn" type="submit" style="width:100%;padding:12px 0;font-size:15px;margin-top:6px;">Register as Candidate</button>
+  </form>
+
+  <form method="post" id="company-form" style="{% if active_tab != 'company' %}display:none;{% endif %}">
+    {% csrf_token %}
+    <input type="hidden" name="role_tab" value="company">
+    <label>Company Name</label>
+    {{ company_form.company_name }}
+    <label>Company Email</label>
+    {{ company_form.company_mail }}
+    <label>Password</label>
+    {{ company_form.password }}
+    <label>Confirm Password</label>
+    {{ company_form.confirm_password }}
+    {% if company_form.errors %}
+      <div style="color:#dc2626;background:#fee2e2;border:1px solid #fecaca;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;">
+        {{ company_form.non_field_errors }}
+      </div>
+    {% endif %}
+    <button class="btn" type="submit" style="width:100%;padding:12px 0;font-size:15px;margin-top:6px;">Register as Company</button>
+  </form>
+
+  <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:14px;">
+    <span>Already have an account? </span><a class="plain-link" href="{% url 'accounts:login' %}">Log in here</a>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll(".tab-toggle").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-toggle").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab = btn.dataset.tab;
+    document.getElementById("student-form").style.display = tab === "student" ? "block" : "none";
+    document.getElementById("company-form").style.display = tab === "company" ? "block" : "none";
+  });
+});
+</script>
+{% endblock %}

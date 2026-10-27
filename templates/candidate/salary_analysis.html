@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Salary & Placement Analysis{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block sidebar %}{% include "partials/candidate_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<h2>Salary & Placement Analysis</h2>
+
+<div class="grid grid-2">
+
+  <!-- 1. Salary Predictor Card -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+      <h3 style="margin:0;">1. Salary Predictor</h3>
+      <form method="post" style="margin:0;">{% csrf_token %}
+        <input type="hidden" name="action" value="predict_salary">
+        <button class="btn" type="submit">Predict My Salary</button>
+      </form>
+    </div>
+
+    {% if salary_context %}
+      <!-- Metrics Card -->
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div>
+            <span style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:600;">Target Role</span>
+            <div style="font-size:18px;font-weight:700;color:#1f2937;">{{ salary_context.role_title }}</div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:600;">Estimated Target Salary</span>
+            <div style="font-size:26px;font-weight:800;color:#6366f1;">₹{{ salary_context.predicted }} LPA</div>
+          </div>
+        </div>
+        <hr style="border:0;border-top:1px solid #e5e7eb;margin:12px 0;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#4b5563;">
+          <span>Expected Range: <strong>₹{{ salary_context.min }} LPA – ₹{{ salary_context.max }} LPA</strong></span>
+          <span>Based on Role, Skills & Experience</span>
+        </div>
+      </div>
+
+      <!-- Growth Breakdown Table -->
+      <h4 style="margin-bottom:10px;color:#374151;">📈 Salary Growth Projection</h4>
+      <table style="margin-bottom:20px;font-size:13px;">
+        <thead>
+          <tr><th>Timeline</th><th>Level / Experience</th><th>Projected Salary</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Entry Level</td><td>Current Profile</td><td><strong>₹{{ salary_context.predicted }} LPA</strong></td></tr>
+          <tr><td>1 Year</td><td>Mid Junior</td><td><strong>₹{{ salary_context.yr1 }} LPA</strong></td></tr>
+          <tr><td>3 Years</td><td>Mid Senior</td><td><strong>₹{{ salary_context.yr3 }} LPA</strong></td></tr>
+          <tr><td>5 Years</td><td>Senior Lead</td><td><strong>₹{{ salary_context.yr5 }} LPA</strong></td></tr>
+        </tbody>
+      </table>
+
+      <!-- Charts Section -->
+      <h4 style="margin-bottom:10px;color:#374151;">📊 Salary Distribution & Career Growth Charts</h4>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div style="background:#fff;padding:12px;border:1px solid #e5e7eb;border-radius:8px;">
+          <canvas id="salaryRangeChart" height="150"></canvas>
+        </div>
+        <div style="background:#fff;padding:12px;border:1px solid #e5e7eb;border-radius:8px;">
+          <canvas id="salaryGrowthChart" height="150"></canvas>
+        </div>
+      </div>
+    {% else %}
+      <p style="color:#6b7280;margin-top:14px;">Click <strong>"Predict My Salary"</strong> above to generate salary analysis & career growth charts based on your profile.</p>
+    {% endif %}
+  </div>
+
+
+  <!-- 2. Placement Probability Card -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+      <h3 style="margin:0;">2. Placement Probability</h3>
+      <form method="post" style="margin:0;">{% csrf_token %}
+        <input type="hidden" name="action" value="predict_placement">
+        <button class="btn" type="submit">Check Placement Probability</button>
+      </form>
+    </div>
+
+    {% if placement_context %}
+      <!-- Metrics Card -->
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div>
+            <span style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:600;">Status Tier</span>
+            <div><span class="badge" style="background:{{ placement_context.tier_color }};color:#fff;font-size:13px;padding:4px 10px;">{{ placement_context.tier_label }}</span></div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:600;">Placement Probability Score</span>
+            <div style="font-size:26px;font-weight:800;color:{{ placement_context.tier_color }};">{{ placement_context.probability }}%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Readiness Pillars -->
+      <h4 style="margin-bottom:10px;color:#374151;">🎯 Readiness Pillars Breakdown</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;font-size:13px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;"><span>Academic Score (CGPA)</span><span>{{ placement_context.cgpa_score }}%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:{{ placement_context.cgpa_score }}%;background:#3b82f6;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;"><span>Technical Skills Strength</span><span>{{ placement_context.skills_score }}%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:{{ placement_context.skills_score }}%;background:#10b981;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;"><span>Project Portfolio</span><span>{{ placement_context.projects_score }}%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:{{ placement_context.projects_score }}%;background:#8b5cf6;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;"><span>Aptitude & Interview Prep</span><span>{{ placement_context.aptitude_score }}%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:{{ placement_context.aptitude_score }}%;background:#f59e0b;"></div></div>
+        </div>
+      </div>
+
+      <!-- Placement Charts -->
+      <h4 style="margin-bottom:10px;color:#374151;">📊 Probability & Readiness Charts</h4>
+      <div style="display:flex;flex-direction:column;gap:20px;margin-bottom:20px;">
+        <div style="background:#fff;padding:12px;border:1px solid #e5e7eb;border-radius:8px;max-height:220px;display:flex;justify-content:center;">
+          <canvas id="placementGaugeChart"></canvas>
+        </div>
+        <div style="background:#fff;padding:12px;border:1px solid #e5e7eb;border-radius:8px;">
+          <canvas id="readinessRadarChart" height="150"></canvas>
+        </div>
+      </div>
+
+      <!-- Actionable Recommendations -->
+      <h4 style="margin-bottom:8px;color:#374151;">💡 Actionable Recommendations</h4>
+      <ul style="padding-left:20px;margin:0;line-height:1.6;font-size:13px;">
+        {% for tip in placement_context.tips %}
+        <li style="margin-bottom:6px;">{{ tip }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p style="color:#6b7280;margin-top:14px;">Click <strong>"Check Placement Probability"</strong> above to calculate your placement success rate & view readiness charts.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+
+<!-- Chart.js Script Initialization -->
+{% if salary_context or placement_context %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  {% if salary_context %}
+  // 1. Salary Range Distribution Chart
+  const ctxSalRange = document.getElementById("salaryRangeChart");
+  if (ctxSalRange && typeof Chart !== 'undefined') {
+    new Chart(ctxSalRange, {
+      type: "bar",
+      data: {
+        labels: ["Minimum Salary", "Estimated Target", "Maximum Salary"],
+        datasets: [{
+          label: "Salary (LPA in ₹)",
+          data: [{{ salary_context.min }}, {{ salary_context.predicted }}, {{ salary_context.max }}],
+          backgroundColor: ["#9ca3af", "#6366f1", "#10b981"],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: "Salary Range Spread (LPA)", font: { size: 13, weight: 'bold' } }
+        },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: "LPA (₹ Lakhs)" } }
+        }
+      }
+    });
+  }
+
+  // 2. Salary Growth Projection Line Chart
+  const ctxSalGrowth = document.getElementById("salaryGrowthChart");
+  if (ctxSalGrowth && typeof Chart !== 'undefined') {
+    new Chart(ctxSalGrowth, {
+      type: "line",
+      data: {
+        labels: ["Entry Level", "1 Year", "3 Years", "5 Years"],
+        datasets: [{
+          label: "Projected Salary (₹ LPA)",
+          data: [{{ salary_context.predicted }}, {{ salary_context.yr1 }}, {{ salary_context.yr3 }}, {{ salary_context.yr5 }}],
+          borderColor: "#6366f1",
+          backgroundColor: "rgba(99, 102, 241, 0.15)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 5,
+          pointBackgroundColor: "#4f46e5"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: { display: true, text: "5-Year Career Salary Growth Trajectory", font: { size: 13, weight: 'bold' } }
+        },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: "LPA (₹ Lakhs)" } }
+        }
+      }
+    });
+  }
+  {% endif %}
+
+  {% if placement_context %}
+  // 3. Placement Probability Donut Chart
+  const ctxPlacementGauge = document.getElementById("placementGaugeChart");
+  if (ctxPlacementGauge && typeof Chart !== 'undefined') {
+    new Chart(ctxPlacementGauge, {
+      type: "doughnut",
+      data: {
+        labels: ["Placement Probability", "Risk Gap"],
+        datasets: [{
+          data: [{{ placement_context.probability }}, {{ placement_context.gap }}],
+          backgroundColor: ["{{ placement_context.tier_color }}", "#e5e7eb"],
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: { display: true, text: "Placement Success Ratio (%)", font: { size: 13, weight: 'bold' } }
+        }
+      }
+    });
+  }
+
+  // 4. Readiness Pillars Bar Chart
+  const ctxReadinessRadar = document.getElementById("readinessRadarChart");
+  if (ctxReadinessRadar && typeof Chart !== 'undefined') {
+    new Chart(ctxReadinessRadar, {
+      type: "bar",
+      data: {
+        labels: ["CGPA Score", "Skills Strength", "Project Portfolio", "Aptitude Score"],
+        datasets: [{
+          label: "Readiness Score (%)",
+          data: [{{ placement_context.cgpa_score }}, {{ placement_context.skills_score }}, {{ placement_context.projects_score }}, {{ placement_context.aptitude_score }}],
+          backgroundColor: ["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b"],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: "Placement Readiness Pillars (%)", font: { size: 13, weight: 'bold' } }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 100, title: { display: true, text: "Percentage (%)" } }
+        }
+      }
+    });
+  }
+  {% endif %}
+});
+</script>
+{% endif %}
+
+{% endblock %}

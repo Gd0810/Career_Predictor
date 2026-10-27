@@ -1,0 +1,8 @@
+{% load static %}
+<div class="sidebar">
+  <a href="{% url 'companyapp:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
+  <a href="{% url 'companyapp:job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' or request.resolver_match.url_name == 'review_applicants' %}active{% endif %}">💼 My Job Listings</a>
+  <a href="{% url 'companyapp:job_create' %}" class="{% if request.resolver_match.url_name == 'job_create' %}active{% endif %}">➕ Post New Job</a>
+  <a href="{% url 'companyapp:quiz_list' %}" class="{% if request.resolver_match.url_name == 'quiz_list' %}active{% endif %}">📝 Job Quizzes</a>
+  <a href="{% url 'companyapp:quiz_create' %}" class="{% if request.resolver_match.url_name == 'quiz_create' %}active{% endif %}">➕ Create Job Quiz</a>
+</div>
